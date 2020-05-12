@@ -2,6 +2,7 @@
 
 import pandas as pd
 
+
 df = pd.DataFrame.from_csv('idb.csv')
 dist_df = pd.DataFrame.from_csv('districts.csv')
 
@@ -25,7 +26,6 @@ def pad_docket_by_year(y):
     
     return x
 
-# print(dist_df.head())
 
 cdf = pd.merge(df, dist_df, how='inner', on='district')
 cdf['district_name'] = cdf['district_name'].str.lower()
