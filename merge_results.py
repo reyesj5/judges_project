@@ -14,12 +14,12 @@ def read_json_lines(fpath):
 
     df = pd.DataFrame.from_records(obj_arr)
 
-    df['docket_judge_initials'] = df.title.str.split(
-        ' ').str[0].str.split('-').str[3].str.split('-')
+    # df['docket_judge_initials'] = df.title.str.split(
+    #     ' ').str[0].str.split('-').str[3].str.split('-')
     # the first judge's fml initial
     df['fml_initial'] = df.title.str.split(
         ' ').str[0].str.split('-').str[3].str.split('-').str[0]
-
+    df = df.rename(columns={"query_district": "district_name", "query_docket_number_padded": "docket_padded", "query_docket_number_raw": "docket"})
     return df
 
 
@@ -41,8 +41,9 @@ if __name__ == '__main__':
     cdf = pd.merge(df, df_cases, how='inner', on='fml_initial')
     cdf = cdf.drop(columns=['Unnamed: 0'])
     cdf.to_csv('results/idb_pacer_judges_matches.csv')
+    df_cases.to_csv("results/results_full.csv")
 
-    # Checking which dockets did not produce a result
+    # Checking which dockets DID NOT produce a result
     no_match_csv()
     dtype = {'district': "string",
              'docket': "string", 'district_name': "string", 'office': "string"}
@@ -51,3 +52,8 @@ if __name__ == '__main__':
     no_match_cases = pd.merge(cases_df, no_match_df, how='inner', on=['docket','district_name'])
     no_match_cases = no_match_cases.drop(columns=['Unnamed: 0'])
     no_match_cases.to_csv('results/no_match_cases.csv')
+
+    # Checking which dockets DID produce a result
+    match_cases = pd.merge(cases_df, df_cases, how='inner', on=['docket','district_name'])
+    match_cases = match_cases.drop(columns=['Unnamed: 0','docket_padded_x','docket_padded_y'])
+    match_cases.to_csv('results/match_cases.csv')
